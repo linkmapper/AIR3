@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8' />
+<title>Тест</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.1.1/mapbox-gl.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.1.1/mapbox-gl.css' rel='stylesheet' />
+<style>
+body { margin:0; padding:0; }
+#map { position:absolute; top:20px; bottom:0; width:100%; }
+</style>
+
+</head>
+<body>
+ 
+<div >Тестове повідомлення: <input id='txt'/></div>
+<div id='map'></div>
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoibGlua21hcHBlciIsImEiOiJjanlqeGJvNm4wN3diM2htbmU4c3VvZDliIn0.djT_KQfmhJkb4Nc53IJypw';
+var map = new mapboxgl.Map({
+container: 'map',
+style: 'mapbox://styles/linkmapper/cjyltt6rl11m81cqtgtmjsi72',
+center: [25.262557, 50.116484],
+zoom: 11.5
+});
+var hoveredStateId = null ;
+ 
+map.on('load', function () {
+map.addSource("states", {
+"type": "geojson",
+"data": "https://raw.githubusercontent.com/linkmapper/AIR3/master/features3.geojson",
+});
+ 
+map.addLayer({
+"id": "state-fills",
+"type": "fill",
+"source": "states",
+"layout": {},
+"paint": {
+"fill-color": "#BDC9E1",
+"fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false], 0.5, 0 ]
+}
+});
+ 
+map.addLayer({
+"id": "state-borders",
+"type": "line",
+"source": "states",
+"layout": {},
+"paint": {
+"line-color": "white",
+"line-width": 1
+}
+});
+ 
+map.on("mousemove", "state-fills", function(e) {
+if (e.features.length > 0) {
+txt.value = "id регіону:" + hoveredStateId + " Номер: "+ e.features[0].properties.reg;
+if (hoveredStateId) {
+map.setFeatureState({source: 'states',  id: hoveredStateId }, { hover: false});}
+hoveredStateId = e.features[0].id;
+map.setFeatureState({source: 'states', id: hoveredStateId}, { hover: true});
+}
+});
+
+map.on("mouseleave", "state-fills", function() {
+if (hoveredStateId) {
+map.setFeatureState({source: 'states', id: hoveredStateId}, { hover: false});
+}
+hoveredStateId =  null;
+});
+});
+
+</script>
+</body>
+</html>
